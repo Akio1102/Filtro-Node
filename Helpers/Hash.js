@@ -5,14 +5,14 @@ export function encryptPassword(password) {
     const hashedPassword = hashSync(password, 10);
     return hashedPassword;
   } catch (error) {
-    throw new Error("Error al encriptar la Password");
+    throw new Error({ error: "Error al encriptar la Password" });
   }
 }
 
 export function comparePassword(plainPassword, hashedPassword) {
   try {
-    const isMatch = compareSync(plainPassword,hashedPassword)
-    return isMatch
+    const isMatch = compareSync(plainPassword, hashedPassword);
+    return isMatch;
   } catch (error) {
     throw new Error("Error al comparas las Password");
   }

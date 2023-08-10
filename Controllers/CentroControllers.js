@@ -1,12 +1,14 @@
 import CentroServices from "../Services/Centro.js";
+import { sendErrorResponse, handleResponse } from "../Helpers/Send.js";
 
 const getCentros = async (req, res) => {
   try {
-    const data = await CentroServices.getCentros();
-    console.log(data);
-    res.status(200).json(data);
+    const { hasta, desde } = req.query;
+    const allCentros = await CentroServices.getCentros(desde, hasta);
+    const { count, data } = allCentros;
+    res.status(200).json({ count, data });
   } catch (error) {
-    console.error(error);
+    sendErrorResponse(res, error);
   }
 };
 
@@ -14,10 +16,9 @@ const createNewCentro = async (req, res) => {
   try {
     const newCentro = await CentroServices.createdNewCentro(req.body);
     console.log(newCentro);
-    res.status(200).json(newCentro);
+    handleResponse(res, newCentro);
   } catch (error) {
-    console.error(error);
-    res.send({msg:error.message});
+    sendErrorResponse(res, error);
   }
 };
 
@@ -28,11 +29,9 @@ const updateOneCentro = async (req, res) => {
       idcentro,
       req.body
     );
-    console.log(updateCentro);
-    res.status(200).json(updateCentro);
+    handleResponse(res, updateCentro);
   } catch (error) {
-    console.error(error);
-    res.send(error);
+    sendErrorResponse(res, error);
   }
 };
 
@@ -40,10 +39,9 @@ const deleteOneCentro = async (req, res) => {
   try {
     const { idcentro } = req.params;
     const deleteCentro = await CentroServices.deletedOneCentro(idcentro);
-    console.log(deleteCentro);
-    res.status(200).json(deleteCentro);
+    handleResponse(res, deleteCentro);
   } catch (error) {
-    console.error(error);
+    sendErrorResponse(res, error);
   }
 };
 

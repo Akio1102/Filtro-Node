@@ -1,48 +1,47 @@
 import Campers from "../Models/Campers.js";
-import { encryptPassword, comparePassword } from "../Helpers/Hash.js";
+import { encryptPassword } from "../Helpers/Hash.js";
 
-const getCampers = async () => {
+const getCampers = async (desde, hasta) => {
   try {
-    const allCampers = await Campers.find();
-    if (allCampers > 0) {
-        return { msg: "Camper Encontrados", data: allCampers };
+    const query = { estado: true };
+    const [total, campers] = await Promise.all([
+      Campers.countDocuments(query),
+      Campers.find(query)
+        .skip(Number(desde))
+        .limit(Number(hasta))
+        .populate("level", ["nombre"]),
+    ]);
+    if (total <= 0) {
+      return { status: 404, msg: "No hay Campers" };
     }
-    return { msg: "No hay Campers" };
+    return { msg: "Camper Encontrados", count: total, data: campers };
   } catch (error) {
     throw new Error({ status: 500, msg: "Error en el Servidor" });
   }
 };
 
-
-/* {
-  "nommbre":"Cristian",
-  "tipoId":"T.!",
-  "nroId":"1120335684",
-  "email":"cristian@gmail.com",
-  "passowrd": 12345678,
-  "level":""
-} */
-
-const createdNewCamper = async (camper) => {
+const createdNewCamper = async (camperData) => {
   try {
-    if (!camper) {
-      return { msg: "Ingrese Valores Validos" };
-    }
+    const { password, email } = camperData;
+    const foundCamper = await Campers.findOne({ email });
 
-    const { email, password } = camper;
-
-    const existUser = await Campers.findOne({ email });
-
-    if (existUser) {
-      return { msg: "Ya existe ese Camper con ese correo " };
+    if (foundCamper) {
+      return {
+        status: 409,
+        msg: `El Usuario ya existe`,
+      };
     }
 
     const hashedPassword = encryptPassword(password);
-    camper.password = hashedPassword;
+    camperData.password = hashedPassword;
 
-    const newCamper = await Campers.create(camper);
-
-    return { msg: "Camper Creado", data: newCamper };
+    console.log(camperData);
+    const newCamper = await Campers.create(camperData);
+    return {
+      status: 201,
+      msg: "Camper Creado Existosamente",
+      data: newCamper,
+    };
   } catch (error) {
     throw new Error({ status: 500, msg: "Error en el Servidor" });
   }
@@ -50,25 +49,23 @@ const createdNewCamper = async (camper) => {
 
 const updatedOneCamper = async (camperID, camperData) => {
   try {
-    if (!camperID || !camperData) {
-      return { msg: "Ingrese Valores Validos" };
-    }
+    const { password } = camperData;
 
     const foundCamper = await Campers.findById(camperID);
 
     if (!foundCamper) {
-      return { msg: "No Existe ese Centro" };
+      return { status: 404, msg: "No Existe ese Camper" };
     }
 
-
-
-/* 
     const hashedPassword = encryptPassword(password);
-    camperData.password = hashedPassword; */
+    camperData.password = hashedPassword;
 
-
-    const updatedCamper = await Campers.findByIdAndUpdate(camperID, camperData);
-    return { msg: "Camper Actualizado", data: updatedCamper };
+    const updatedCamper = await Campers.findByIdAndUpdate(
+      camperID,
+      camperData,
+      { new: true }
+    );
+    return { status: 202, msg: "Camper Actualizado", data: updatedCamper };
   } catch (error) {
     throw new Error({ status: 500, msg: "Error en el Servidor" });
   }
@@ -76,18 +73,17 @@ const updatedOneCamper = async (camperID, camperData) => {
 
 const deletedOneCamper = async (camperID) => {
   try {
-    if (!camperID) {
-      return { msg: "Ingrese Valores Validos" };
+    const deleteCamper = await Campers.findByIdAndUpdate(camperID, {
+      estado: false,
+    });
+
+    if (!deleteCamper) {
+      return {
+        status: 404,
+        msg: `El Camper no Existe`,
+      };
     }
-
-    const foundCamper = await Campers.findById(camperID);
-
-    if (!foundCamper) {
-      return { msg: "No Existe ese Centro" };
-    }
-
-    const deleteCamper = await Campers.findByIdAndDelete(camperID);
-    return { msg: "Camper Eliminado", data: deleteCamper };
+    return { status: 200, msg: "Camper Eliminado" };
   } catch (error) {
     throw new Error({ status: 500, msg: "Error en el Servidor" });
   }

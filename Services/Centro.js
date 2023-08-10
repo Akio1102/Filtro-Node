@@ -1,70 +1,86 @@
 import Centros from "../Models/Centros.js";
 
-const getCentros = async () => {
-    try {
-        const allCentros = await Centros.find();
-        if (allCentros.length > 0) {
-            return { msg: "Centros Encontrados", data: allCentros }
-        }
-        return { msg: "No hay Centros" }
-    } catch (error) {
-        throw new Error({ status: 500, msg: "Error en el Servidor" })
+const getCentros = async (desde, hasta) => {
+  try {
+    const query = { estado: true };
+    const [total, centros] = await Promise.all([
+      Centros.countDocuments(query),
+      Centros.find(query).skip(Number(desde)).limit(Number(hasta)),
+    ]);
+    if (total <= 0) {
+      return { msg: "No hay Centros", status: 404 };
     }
-}
+    return { msg: "Centros Encontrados", count: total, data: centros };
+  } catch (error) {
+    throw new Error({ status: 500, msg: "Error en el Servidor" });
+  }
+};
 
 const createdNewCentro = async (centro) => {
-    try {
-        if (!centro) {
-            return { msg: "Ingrese Valores Validos" }
-        }
-        const newCentro = await Centros.create(centro)
-        return { msg: "Centro Creado", data: newCentro }
-    } catch (error) {
-        throw new Error(`Error el Servidor: ${error.message}`);
+  try {
+    const newCentro = await Centros.create(centro);
+    if (newCentro) {
+      return { status: 201, msg: "Centro Creado", data: newCentro };
     }
-}
+    return {
+      status: 400,
+      msg: "Centros Faltan Datos",
+    };
+  } catch (error) {
+    throw new Error(`Error el Servidor: ${error.message}`);
+  }
+};
 
 const updatedOneCentro = async (centroID, centroData) => {
-    try {
-        if (!centroID || !centroData) {
-            return { msg: "Ingrese Valores Validos" }
-        }
-
-        const foundCentro = await Centros.findById(centroID);
-
-        if (!foundCentro) {
-            return { msg: "No Existe ese Centro" }
-        }
-
-        const updatedCentro = await Centros.findByIdAndUpdate(centroID, centroData)
-        return { msg: "Centro Actualizado", updatedCentro }
-    } catch (error) {
-        throw new Error({ status: 500, msg: "Error en el Servidor" })
+  try {
+    if (!centroID || !centroData) {
+      return { status: 404, msg: "Ingrese Valores Validos" };
     }
-}
+
+    const foundCentro = await Centros.findById(centroID);
+
+    if (!foundCentro) {
+      return { status: 404, msg: "No Existe ese Centro" };
+    }
+
+    const updatedCentro = await Centros.findByIdAndUpdate(
+      centroID,
+      centroData,
+      {
+        new: true,
+      }
+    );
+    return {
+      status: 201,
+      msg: "Centro Actualizado Exitosamente",
+      data: updatedCentro,
+    };
+  } catch (error) {
+    throw new Error({ status: 500, msg: "Error en el Servidor" });
+  }
+};
 
 const deletedOneCentro = async (centroID) => {
-    try {
-        if (!centroID) {
-            return { msg: "Ingrese Valores Validos" }
-        }
+  try {
+    const deleteCentro = await Centros.findByIdAndUpdate(centroID, {
+      estado: false,
+    });
 
-        const foundCentro = await Centros.findById(centroID);
-
-        if (!foundCentro) {
-            return { msg: "No Existe ese Centro" }
-        }
-
-        const deleteCentro = await Centros.findByIdAndDelete(centroID)
-        return { msg: "Centro Eliminado", deleteCentro }
-    } catch (error) {
-        throw new Error({ status: 500, msg: "Error en el Servidor" })
+    if (!deleteCentro) {
+      return {
+        status: 404,
+        msg: `El Centro No existe`,
+      };
     }
-}
+    return { status: 204, msg: "Centro Eliminado" };
+  } catch (error) {
+    throw new Error({ status: 500, msg: "Error en el Servidor" });
+  }
+};
 
 export default {
-    getCentros,
-    createdNewCentro,
-    updatedOneCentro,
-    deletedOneCentro,
-}
+  getCentros,
+  createdNewCentro,
+  updatedOneCentro,
+  deletedOneCentro,
+};

@@ -1,14 +1,14 @@
 import { Schema, model } from "mongoose";
 
-const RolesSchema = new Schema({
-    nombre: {
-        type: String,
-        required: [true, "El Nombre es Requerido"]
+const RolesSchema = new Schema(
+  {
+    rol: {
+      type: String,
+      required: [true, "El rol Es Requerido"],
+      enum: ["camperRol", "trainerRol", "gerenteRol"],
     },
-    rol:{
-        type:String,
-        required:[true,"El rol Es Requerido"]
-    }
-}, { timestamps: true })
+  },
+  { timestamps: true }
+);
 
-export default model("role",RolesSchema)
+export default model("role", RolesSchema);

@@ -7,11 +7,10 @@ import RoleRoutes from "./Rol.Routes.js";
 
 const ROUTER = Router();
 
-const PATH = "/api"
+const PATH = "/api";
 
-export default ROUTER
-    .use(`${PATH}/centros`, CentroRoutes)
-    .use(`${PATH}/rutas`, RutaRoutes)
-    .use(`${PATH}/level`, LevelRoutes)
-    .use(`${PATH}/campers`, CamperRoutes)
-    .use(`${PATH}/role`, RoleRoutes);
+export default ROUTER.use(`${PATH}/centros`, CentroRoutes)
+  .use(`${PATH}/rutas`, RutaRoutes)
+  .use(`${PATH}/levels`, LevelRoutes)
+  .use(`${PATH}/campers`, CamperRoutes)
+  .use(`${PATH}/roles`, RoleRoutes);

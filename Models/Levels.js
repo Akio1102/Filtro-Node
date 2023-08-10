@@ -12,11 +12,16 @@ const levelSchema = new Schema(
       required: [true, "La Ruta es Requerido"],
     },
     duracion: {
-      type: Date,
+      type: String,
       required: [true, "La Duracion es Requerida"],
+    },
+    estado: {
+      type: String,
+      required: [true, "El Estado es Requerido"],
+      enum: ["finalizado", "pendiente"],
     },
   },
   { timestamps: true }
 );
 
-export default model("level", levelSchema)
+export default model("level", levelSchema);

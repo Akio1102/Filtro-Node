@@ -17,7 +17,7 @@ export const createToken = async (user) => {
         typ: "JWT",
       })
       .setIssuedAt()
-      .setExpirationTime("1h")
+      .setExpirationTime("2h")
       .sign(encoder.encode(Config.JWT_PRIVATE_KEY));
 
     return token;

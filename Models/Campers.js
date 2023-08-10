@@ -69,4 +69,4 @@ const campersSchema = new Schema(
   { timestamps: true }
 );
 
-export default model("camper", campersSchema)
+export default model("camper", campersSchema);
