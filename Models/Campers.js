@@ -38,7 +38,7 @@ const campersSchema = new Schema(
     password: {
       type: String,
       required: [true, "El Password es Requerido"],
-      minlength: [8, "La Password debe tener al menos 6 caracteres"],
+      minlength: [8, "La Password debe tener al menos 8 caracteres"],
     },
     level: {
       type: Schema.Types.ObjectId,

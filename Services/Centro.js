@@ -3,10 +3,10 @@ import Centros from "../Models/Centros.js";
 const getCentros = async () => {
     try {
         const allCentros = await Centros.find();
-        if (allCentros < 0) {
-            return { msg: "No hay Centros" }
+        if (allCentros.length > 0) {
+            return { msg: "Centros Encontrados", data: allCentros }
         }
-        return { msg: "Centros Encontrados", data: allCentros }
+        return { msg: "No hay Centros" }
     } catch (error) {
         throw new Error({ status: 500, msg: "Error en el Servidor" })
     }
@@ -20,7 +20,7 @@ const createdNewCentro = async (centro) => {
         const newCentro = await Centros.create(centro)
         return { msg: "Centro Creado", data: newCentro }
     } catch (error) {
-        throw new Error({ status: 500, msg: "Error en el Servidor" })
+        throw new Error(`Error el Servidor: ${error.message}`);
     }
 }
 
